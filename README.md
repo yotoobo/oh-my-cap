@@ -1,2 +1,2 @@
 # oh-my-cap
-The fast way to build on the servers
+使用capistrano 快速部署服务器环境，如LNMP/LAMP/KVM等。
