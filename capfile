@@ -11,13 +11,15 @@ set(:password) { Capistrano::CLI.password_prompt( "Give me ssh password: ") }
 role :web, '10.49.1.172'
 
 # variables
+set :sshroot, "/root/.ssh"
 set :php_home, "/usr/local/php"
+
 
 namespace :user do
 
   desc "get user root ssh_pub_key"
   task :sshpubkey_root do
-    upload("#{initroot}/sysinit/sshkey/root.pub","/tmp/root.pub")
+    upload("#{sshroot}/id_rsa.pub","/tmp/root.pub")
     run <<-CMD
       [ -d $HOME/.ssh ] || mkdir -p $HOME/.ssh ;
       [ -O $HOME/.ssh ] || chown $USER $HOME/.ssh ;
@@ -68,8 +70,8 @@ namespace :user do
     if [ `grep -c ^rd /etc/group` -eq 0 ];then { echo "add user(rd)"; useradd -s /bin/lksh rd; }; else { echo "user(rd) added"; }; fi;
     CMD
   end
-
 end
+
 
 namespace :lnmp do
 
