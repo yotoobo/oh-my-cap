@@ -1,0 +1,39 @@
+#!/usr/local/bin/ruby
+# name: Capfile
+# ver: 0.1
+# date: 2015/05/21
+
+# USER / SHELL
+set :user, "root" # the user to run remote commands as
+set(:password) { Capistrano::CLI.password_prompt( "Give me ssh password: ") }
+
+# which host will install
+role :web, '10.49.1.172'
+
+# php_home
+set :php_home, "/usr/local/php"
+
+namespace :lnmp do
+
+    desc "lnmp init"
+    task :default do
+        run <<-CMD
+            if [ -d #{php_home} ];
+            then {
+                echo "php is exists" ;
+            };
+            else {
+                cd /tmp && wget -q -c -t 3 -T 10 http://mirrors.sohu.com/php/php-5.4.41.tar.gz ;
+                tar zxf php-5.4.41.tar.gz && cd php-5.4.41 ;
+                #yum -y -q install gcc gcc-c++ zlib-devel ncurses-devel xz cmake curl-devel bison lsof openssl-devel libxml2-devel libjpeg-devel libpng-devel freetype-devel autoconf libtool libtool-ltdl-devel bzip2-devel gmp-devel openldap-devel mysql-devel readline-devel libxslt-devel.x86_64 1>/dev/null;
+        	./configure --prefix=#{php_home} --enable-fpm 1>/dev/null;
+		make 1>/dev/null && make install 1>/dev/null;
+	   };
+           fi;
+        [ ! -f /etc/ld.so.conf.d/php.conf ] && echo "/usr/local/php/lib" > /etc/ld.so.conf.d/php.conf && echo "/usr/local/lib" >> /etc/ld.so.conf.d/php.conf && ldconfig ;
+        #[ ! -f /etc/init.d/php-fpm ] && mv /usr/local/php/php-fpm.service /etc/init.d/php-fpm ;
+        chmod a+x /etc/init.d/php-fpm && chkconfig php-fpm on ;
+        #rm -rf /tmp/{*.rpm,php_*,libiconv-1.14*} ;
+        CMD
+    end
+end
