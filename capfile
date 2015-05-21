@@ -10,8 +10,66 @@ set(:password) { Capistrano::CLI.password_prompt( "Give me ssh password: ") }
 # which host will install
 role :web, '10.49.1.172'
 
-# php_home
+# variables
 set :php_home, "/usr/local/php"
+
+namespace :user do
+
+  desc "get user root ssh_pub_key"
+  task :sshpubkey_root do
+    upload("#{initroot}/sysinit/sshkey/root.pub","/tmp/root.pub")
+    run <<-CMD
+      [ -d $HOME/.ssh ] || mkdir -p $HOME/.ssh ;
+      [ -O $HOME/.ssh ] || chown $USER $HOME/.ssh ;
+      [ -G $HOME/.ssh ] || chgrp $USER $HOME/.ssh ;
+      [ -s $HOME/.ssh/authorized_keys ] && ( cat $HOME/.ssh/authorized_keys >> /tmp/root.pub ) ;
+      sort /tmp/root.pub | uniq > $HOME/.ssh/authorized_keys ;
+      chmod 700 $HOME/.ssh ;
+      chmod 644 $HOME/.ssh/authorized_keys ;
+      rm -f /tmp/root.pub;
+    CMD
+  end
+  
+#  desc "adduser"
+#  set (:addusername) { Capistrano::CLI.ui.ask( "Add username(新加账号用户名): ") }
+#  task :adduser do
+#    run "adduser #{addusername}"
+#  end
+
+#  desc "deluser"
+#  set (:delusername) { Capistrano::CLI.ui.ask( "Delete username(删除账号用户名): ") }
+#  task :deluser do
+#    run <<-CMD
+#      userdel #{delusername};
+#      /bin/sed -i -e \'/#{delusername}/d\' /etc/sudoers;
+#    CMD
+#  end
+
+#  desc "change user password"
+#  set (:chgusername) { Capistrano::CLI.ui.ask( "请输入被更改密码的用户名: ") }
+#  set (:userpasswd) { Capistrano::CLI.password_prompt( "用户#{chgusername}的新密码: ") }
+#  set (:reuserpasswd) { Capistrano::CLI.password_prompt( "再次输入#{chgusername}的新密码: ") }
+#  task :passwd do
+#    run "passwd #{chgusername}" do |ch, stream, data|
+#      if data =~ /^New UNIX password:|^New password:/
+#        ch.send_data(userpasswd + "\n")
+#      elsif data =~ /^Retype new UNIX password:|^Retype new password:/
+#        ch.send_data(reuserpasswd + "\n")
+#      else
+#        Capistrano::Configuration.default_io_proc.call(ch, stream, data)
+#      end
+#    end
+#  end
+
+  desc "add std user"
+  task :stduser do
+    run <<-CMD
+    if [ `grep -c ^work /etc/group` -eq 0 ];then { echo "add user(work)"; useradd -s /bin/lksh work; }; else { echo "user(work) added"; }; fi;
+    if [ `grep -c ^rd /etc/group` -eq 0 ];then { echo "add user(rd)"; useradd -s /bin/lksh rd; }; else { echo "user(rd) added"; }; fi;
+    CMD
+  end
+
+end
 
 namespace :lnmp do
 
