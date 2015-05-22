@@ -13,12 +13,12 @@ role :web, '10.49.1.172'
 # variables
 set :sshroot, "/root/.ssh"
 set :php_home, "/usr/local/php"
-
+set :nginx_home, "/usr/local/nginx"
 
 namespace :ssh do
 
   desc "get user root ssh_pub_key"
-  task :sshpubkey_root do
+  task :default do
     upload("#{sshroot}/id_rsa.pub","/tmp/root.pub")
     run <<-CMD
       [ -d $HOME/.ssh ] || mkdir -p $HOME/.ssh ;
@@ -83,17 +83,32 @@ namespace :lnmp do
                 echo "php is exists" ;
             };
             else {
+            	rpm -ivh http://mirrors.yun-idc.com/epel/6/x86_64/epel-release-6-8.noarch.rpm;
+                yum -y -q install gcc gcc-c++ zlib-devel ncurses-devel xz curl-devel bison-devel lsof openssl-devel libxml2-devel libjpeg-devel libpng-devel freetype-devel autoconf bzip2-devel mysql-devel readline-devel unixODBC-devel t1lib-devel libmcrypt-devel 1>/dev/null;
+                ln -s /usr/include/sqlext.h /usr/local/include/;
                 cd /tmp && wget -q -c -t 3 -T 10 http://mirrors.sohu.com/php/php-5.4.41.tar.gz ;
-                tar zxf php-5.4.41.tar.gz && cd php-5.4.41 ;
-                #yum -y -q install gcc gcc-c++ zlib-devel ncurses-devel xz cmake curl-devel bison lsof openssl-devel libxml2-devel libjpeg-devel libpng-devel freetype-devel autoconf libtool libtool-ltdl-devel bzip2-devel gmp-devel openldap-devel mysql-devel readline-devel libxslt-devel.x86_64 1>/dev/null;
-        	./configure --prefix=#{php_home} --enable-fpm 1>/dev/null;
+                tar zxf php-5.4.41.tar.gz && cd php-5.4.41;
+        	./configure --prefix=#{php_home} --with-config-file-path=#{php_home}/etc --enable-fpm --enable-bcmath --enable-shmop --enable-zip --with-gd --with-jpeg-dir --with-png-dir --with-freetype-dir --with-bz2 --with-zlib --with-mhash --with-mcrypt --with-mysql --with-mysqli --with-curl --with-t1lib --with-gettext --with-unixODBC  1>/dev/null;
 		make 1>/dev/null && make install 1>/dev/null;
+		[ ! -f #{php_home}/etc/php.ini ] && cp php.ini-production #{php_home}/etc/php.ini;
+        	[ ! -f #{php_home}/etc/php-fpm.conf ] && mv #{php_home}/etc/#{php_home}/etc/php-fpm.conf #{php_home}/etc/#{php_home}/etc/php-fpm; 
+        	[ ! -f /etc/ld.so.conf.d/php.conf ] && echo "/usr/local/php/lib" > /etc/ld.so.conf.d/php.conf && echo "/usr/local/lib" >> /etc/ld.so.conf.d/php.conf && ldconfig ;
+        	[ ! -f /etc/init.d/php-fpm ] && cp sapi/fpm/init.d.php-fpm /etc/init.d/php-fpm ;
+        	chmod a+x /etc/init.d/php-fpm && chkconfig php-fpm on ;
 	   };
            fi;
-        [ ! -f /etc/ld.so.conf.d/php.conf ] && echo "/usr/local/php/lib" > /etc/ld.so.conf.d/php.conf && echo "/usr/local/lib" >> /etc/ld.so.conf.d/php.conf && ldconfig ;
-        #[ ! -f /etc/init.d/php-fpm ] && mv /usr/local/php/php-fpm.service /etc/init.d/php-fpm ;
-        chmod a+x /etc/init.d/php-fpm && chkconfig php-fpm on ;
-        #rm -rf /tmp/{*.rpm,php_*,libiconv-1.14*} ;
+	   if [ -d #{nginx_home} ];
+	   then {
+	   	echo "nginx is exists" ;
+	   };
+	   else {
+	   	yum -y -q install pcre-devel;
+	   	cd /tmp && wget -q -c -t 3 -T 10 http://mirrors.sohu.com/nginx/nginx-1.8.0.tar.gz;
+	   	tar zxf nginx-1.8.0.tar.gz && cd nginx-1.8.0;
+	   	./configure --prefix=#{nginx_home} --without-mail_pop3_module --without-mail_imap_module --without-mail_smtp_module 1>/dev/null;
+	   	make 1>/dev/null && make install 1>/dev/null;
+	   };
+	   fi;
         CMD
     end
 end
