@@ -8,7 +8,7 @@ set :user, "root" # the user to run remote commands as
 set(:password) { Capistrano::CLI.password_prompt( "Give me ssh password: ") }
 
 # which host will install
-role :web, '10.49.1.172'
+role :web, '192.168.1.1','192.168.1.2','192.168.1.3'
 
 # variables
 set :sshroot, "/root/.ssh"
