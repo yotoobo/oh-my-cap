@@ -15,7 +15,7 @@ set :sshroot, "/root/.ssh"
 set :php_home, "/usr/local/php"
 
 
-namespace :user do
+namespace :ssh do
 
   desc "get user root ssh_pub_key"
   task :sshpubkey_root do
@@ -63,13 +63,13 @@ namespace :user do
 #    end
 #  end
 
-  desc "add std user"
-  task :stduser do
-    run <<-CMD
-    if [ `grep -c ^work /etc/group` -eq 0 ];then { echo "add user(work)"; useradd -s /bin/lksh work; }; else { echo "user(work) added"; }; fi;
-    if [ `grep -c ^rd /etc/group` -eq 0 ];then { echo "add user(rd)"; useradd -s /bin/lksh rd; }; else { echo "user(rd) added"; }; fi;
-    CMD
-  end
+#  desc "add std user"
+#  task :stduser do
+#    run <<-CMD
+#    if [ `grep -c ^work /etc/group` -eq 0 ];then { echo "add user(work)"; useradd -s /bin/lksh work; }; else { echo "user(work) added"; }; fi;
+#    if [ `grep -c ^rd /etc/group` -eq 0 ];then { echo "add user(rd)"; useradd -s /bin/lksh rd; }; else { echo "user(rd) added"; }; fi;
+#    CMD
+#  end
 end
 
 
