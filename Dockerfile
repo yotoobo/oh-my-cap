@@ -1,4 +1,4 @@
 FROM index.alauda.cn/zhiliangw/centos_cap
 MAINTAINER zhiliangw
-CMD git pull
-WORKDIR /opt/oh-my-cap/
+RUN git clone https://github.com/yotoobo/oh-my-cap.git ~/oh-my-cap
+WORKDIR /root/
