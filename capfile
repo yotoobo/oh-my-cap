@@ -83,47 +83,49 @@ namespace :lnmp do
                 echo "php is exists" ;
             };
             else {
-            	rpm -ivh http://mirrors.yun-idc.com/epel/6/x86_64/epel-release-6-8.noarch.rpm >/dev/null 2>&1;
-                yum -y -q install gcc gcc-c++ zlib-devel ncurses-devel re2c xz curl-devel bison bison-devel lsof openssl-devel libxml2-devel libjpeg-devel libpng-devel freetype-devel autoconf bzip2-devel mysql-devel readline-devel unixODBC-devel t1lib-devel libmcrypt-devel >/dev/null 2>&1;
-                [ ! -f /usr/local/include/sqlext.h ] && ln -s /usr/include/sqlext.h /usr/local/include/;
-                cd /tmp && wget -q -c -t 3 -T 10 http://mirrors.sohu.com/php/php-5.4.41.tar.gz && wget -q -c -t 3 -T 10 http://xcache.lighttpd.net/pub/Releases/3.2.0/xcache-3.2.0.tar.gz;
-                tar zxf php-5.4.41.tar.gz && cd php-5.4.41;
-        	./configure --prefix=#{php_home} --with-config-file-path=#{php_home}/etc --enable-fpm --enable-bcmath --enable-shmop --enable-zip --with-gd --with-jpeg-dir --with-png-dir --with-freetype-dir --with-bz2 --with-zlib --with-mhash --with-mcrypt --with-mysql --with-mysqli --with-curl --with-t1lib --with-gettext --with-unixODBC  >/dev/null 2>&1;
-		make >/dev/null 2>&1 && make install >/dev/null 2>&1;
-		[ ! -f #{php_home}/etc/php.ini ] && cp php.ini-production #{php_home}/etc/php.ini;
-        	[ ! -f #{php_home}/etc/php-fpm.conf ] && cp #{php_home}/etc/php-fpm.conf.default #{php_home}/etc/php-fpm.conf; 
-        	[ ! -f /etc/ld.so.conf.d/lnmp.conf ] && echo "/usr/local/php/lib" > /etc/ld.so.conf.d/lnmp.conf && echo "/usr/local/lib" >> /etc/ld.so.conf.d/lnmp.conf && ldconfig ;
-        	[ ! -f /etc/init.d/php-fpm ] && cp sapi/fpm/init.d.php-fpm /etc/init.d/php-fpm ;
-        	chmod a+x /etc/init.d/php-fpm && chkconfig php-fpm on ;
-        	#{php_home}/bin/pecl install memcache >/dev/null 2>&1;
-        	#{php_home}/bin/pecl install redis >/dev/null 2>&1;
-        	echo "extension=memcache.so" >> #{php_home}/etc/php.ini;
-        	echo "extension=redis.so" >> #{php_home}/etc/php.ini;
-        	cd /tmp && tar zxf xcache-3.2.0.tar.gz;
-		cd xcache-3.2.0 && #{php_home}/bin/phpize >/dev/null;
-		./configure --enable-xcache --with-php-config=#{php_home}/bin/php-config >/dev/null && make >/dev/null 2>&1 && make install >/dev/null 2>&1;
-		cat xcache.ini >> #{php_home}/etc/php.ini ;
-		cd /tmp && rm -fr xcache-3.2.0;
-        	echo "PHP install ok";
+            	rpm -ivh http://mirrors.yun-idc.com/epel/epel-release-latest-7.noarch.rpm >/dev/null 2>&1;
+                yum -y -q install gcc gcc-c++ autoconf libxml2-devel libjpeg-devel libpng-devel freetype-devel bzip2 bzip2-devel curl-devel t1lib-devel libmcrypt-devel ImageMagick-devel >/dev/null 2>&1;
+                cd /tmp && wget -q -c -t 3 -T 10 http://mirrors.sohu.com/php/php-5.4.45.tar.gz && wget -q -c -t 3 -T 10 http://xcache.lighttpd.net/pub/Releases/3.2.0/xcache-3.2.0.tar.gz;
+                tar zxf php-5.4.45.tar.gz && cd php-5.4.45;
+        	    ./configure --prefix=#{php_home} --with-config-file-path=#{php_home}/etc --enable-fpm --enable-bcmath --enable-shmop --enable-zip --with-gd --with-jpeg-dir --with-png-dir --with-freetype-dir --with-bz2 --with-zlib --with-mhash --with-mcrypt --with-mysql --with-mysqli --with-curl --with-t1lib --with-gettext >/dev/null 2>&1;
+	         	make >/dev/null 2>&1 && make install >/dev/null 2>&1;
+	            [ ! -f #{php_home}/etc/php.ini ] && cp php.ini-production #{php_home}/etc/php.ini;
+        	    [ ! -f #{php_home}/etc/php-fpm.conf ] && cp #{php_home}/etc/php-fpm.conf.default #{php_home}/etc/php-fpm.conf; 
+        	    [ ! -f /etc/ld.so.conf.d/lnmp.conf ] && echo "/usr/local/php/lib" > /etc/ld.so.conf.d/lnmp.conf && echo "/usr/local/lib" >> /etc/ld.so.conf.d/lnmp.conf && ldconfig ;
+             	[ ! -f /etc/init.d/php-fpm ] && cp sapi/fpm/init.d.php-fpm /etc/init.d/php-fpm ;
+        	    chmod a+x /etc/init.d/php-fpm && chkconfig php-fpm on ;
+        	    #{php_home}/bin/pecl install memcache >/dev/null 2>&1;
+        	    #{php_home}/bin/pecl install redis >/dev/null 2>&1;
+        	    #{php_home}/bin/pecl install imagick >/dev/null 2>&1;
+        	    echo "extension=memcache.so" >> #{php_home}/etc/php.ini;
+        	    echo "extension=redis.so" >> #{php_home}/etc/php.ini;
+        	    echo "extension=imagick.so" >> #{php_home}/etc/php.ini;
+        	    cd /tmp && tar zxf xcache-3.2.0.tar.gz;
+	            cd xcache-3.2.0 && #{php_home}/bin/phpize >/dev/null;
+	            ./configure --enable-xcache --with-php-config=#{php_home}/bin/php-config >/dev/null && make >/dev/null 2>&1 && make install >/dev/null 2>&1;
+	            cat xcache.ini >> #{php_home}/etc/php.ini ;
+	            cd /tmp && rm -fr xcache-3.2.0;
+        	    echo "PHP install ok";
         	
-	   };
-           fi;
-	   if [ -d #{nginx_home} ];
-	   then {
-	   	echo "nginx is exists" ;
-	   };
-	   else {
-	   	yum -y -q install pcre-devel 1>/dev/null;
-	   	cd /tmp && wget -q -c -t 3 -T 10 http://mirrors.sohu.com/nginx/nginx-1.8.0.tar.gz && wget -q -c -t 3 -T 10 http://www.canonware.com/download/jemalloc/jemalloc-3.6.0.tar.bz2 ;
-	   	tar jxf jemalloc-3.6.0.tar.bz2 && cd jemalloc-3.6.0;
-	   	./configure >/dev/null && make >/dev/null 2>&1 && make install >/dev/null && ldconfig;
-	   	cd /tmp && rm -fr jemalloc-3.6.0;
-	   	tar zxf nginx-1.8.0.tar.gz && cd nginx-1.8.0;
-	   	./configure --prefix=#{nginx_home} --without-mail_pop3_module --without-mail_imap_module --without-mail_smtp_module >/dev/null;
-	   	make >/dev/null && make install >/dev/null;
-	   	echo "Nginx install ok";
-	   };
-	   fi;
+	        };
+            fi;
+
+	        if [ -d #{nginx_home} ];
+	        then {
+	        	echo "nginx is exists" ;
+	        };
+	        else {
+	        	yum -y -q install openssl-devel pcre-devel 1>/dev/null;
+	        	cd /tmp && wget -q -c -t 3 -T 10 http://tengine.taobao.org/download/tengine-2.1.1.tar.gz && wget -q -c -t 3 -T 10 http://www.canonware.com/download/jemalloc/jemalloc-3.6.0.tar.bz2 ;
+	        	tar jxf jemalloc-3.6.0.tar.bz2 && cd jemalloc-3.6.0;
+	        	./configure >/dev/null && make >/dev/null 2>&1 && make install >/dev/null && ldconfig;
+	        	cd /tmp ;
+	        	tar zxf tengine-2.1.1.tar.gz && cd tengine-2.1.1;
+	        	./configure --prefix=#{nginx_home} --without-mail_pop3_module --without-mail_imap_module --without-mail_smtp_module --with-jemalloc >/dev/null;
+	        	make >/dev/null && make install >/dev/null;
+	        	echo "Nginx install ok";
+	        };
+	        fi;
         CMD
     end
 end
